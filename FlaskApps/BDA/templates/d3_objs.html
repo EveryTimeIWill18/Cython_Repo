@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+      <script>
+        // d3 draws a rectangle
+        d3.select("body") // select body
+        .append("svg")  // add an <svg> html element
+        .append("rect") // add a <rect> element to svg
+            .attr("width", 50) // set the width of rect
+            .attr("height", 200) // set the height of rect
+            .style("fill", "dodgerblue"); // color the rect
+
+        // d3 svg.circle
+        d3.select("body")  // select body
+            .append("svg") // add a scalable vector graphics element
+                .attr("width", 50)
+                .attr("height", 50)
+            .append("circle")
+                .attr("cx", "25")
+                .attr("cy", "25")
+                .attr("r", "25")
+                .style("fill", "dodgerblue")
+
+
+
+   </script>
+</body>
+</html>
