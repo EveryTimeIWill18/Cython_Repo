@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        // d3.js bar graph set up
+        var w = 500;
+        var h = 100;
+        var padding = 2;
+        var dataset = [10, 25, 45, 15, 75];
+        var colors = ["red", "green", "blue", "black", "orange"];
+
+        // create svg
+        var svg = d3.select("body")
+                    .append("svg")
+                        .attr("width", w)
+                        .attr("height", h)
+
+        svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("x", function(d, i){
+                return (i * (w / dataset.length));
+            })
+            .attr("y", function(d){
+                return h - (d * 4);
+            })
+            .attr("width", w/dataset.length - padding)
+            .attr("height", function(d){
+                return (d)*4;
+            })
+            .style("fill", function(d) {
+            return "rgb("+(d*10) + ", 0, 0)";
+            });
+
+    </script>
+</body>
+</html>
