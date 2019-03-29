@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>D3 From Pandas Df</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+<script>
+    // D3 JavaScript goes here
+    var graphData = [{"United States": 336}, {"United Kingdom": 98},
+            {"Germany": 79}, {"France": 60}, {"Switzerland": 23},
+            {"Sweden": 29}, {"Japan": 21}, {"Russia": 19},
+            {"Netherlands": 17}, {"Austria": 14}];
+
+     var i = 0;
+    var newline = "\n";
+    for(var i in graphData){
+        var obj = graphData[i];
+        for (var key in obj) {
+          document.write(key+ ":"+obj[key]);
+          document.write(newline);
+
+        }
+    }
+
+
+    // document.write(graphData[0]["rows"])
+    var margin = {top:20, right:20, bottom:30, left:40};
+    var boundingRect = chartHolder.node().getBoundingClientRect();
+    var width = boundingRect.width - margin.left - margin.right,
+        height = boundingRect.height - margin.top - margin.bottom;
+    var barWidth = width/graphData.length;
+
+    var svg = d3.select("body")
+        .data(graphData)
+                .append("svg")
+                .append("rect")
+                    .attr("width", width+margin.left+margin.right)
+                    .attr("height", height+margin.top+margin.bottom)
+                .append("g").classed("chart", true)
+                    .attr("transform", "translate("+margin.left + ","+margin.top+")");
+    graphData.forEach(function (d, i) {
+        svg.append("rect").classed("bar", true)
+                .attr("height", d.value)
+                .attr("width", barWidth)
+                .attr("y", height-d.value)
+                .attr("x", i*(barWidth));
+    });
+
+</script>
+
+</body>
+</html>
