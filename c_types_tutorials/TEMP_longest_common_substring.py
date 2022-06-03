@@ -73,10 +73,8 @@ class LongestCommonSubstring:
                     str_combinations_list = [*str_combinations_list, *temp_combinations_list]
                     str_size += 1
             else:
-                print(f"IN FINAL ELSE!!!!!!!!!")
                 combinations_list.append(input_string)
                 str_combinations_list.append(input_string)
-                pprint(f"FINAL LIST: {str_combinations_list=}")
                 break
         return str_combinations_list
 
