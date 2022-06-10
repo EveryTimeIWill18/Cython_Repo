@@ -25,6 +25,13 @@
 #include <errno.h>
 #include <string.h>
 
+#define MAX(a,b) (((a)>(b))? (a):(b))
+
+int square(int i) {
+    return i * i;
+}
+
+
 
 struct string_distance {
     const char * input_key;
@@ -62,10 +69,13 @@ void compute_str_distance(struct string_distance* str_diff) {
     } else {
         // Set the string lengths
         size_t input_key_len = strlen(str_diff->input_key);
+        printf("input_key_len := %d\n", (int)input_key_len);
+
         size_t str_to_match_len = strlen(str_diff->string_to_match);
+        printf("str_to_match_len := %d\n", (int)str_to_match_len);
 
         if (input_key_len > str_to_match_len) {
-            printf("in IF");
+            printf("in IF\n");
             // If input_key is longer than str_to_match
             str_diff->lev_distance = (input_key_len - str_to_match_len);
             printf("lev_distance == %d\n", (int)str_diff->lev_distance);
@@ -97,10 +107,40 @@ void compute_str_distance(struct string_distance* str_diff) {
                 }
             }
         }
-        // Update the struct ratio
-        str_diff->ratio = ((double)(str_to_match_len - str_diff->lev_distance))/ input_key_len;
-        printf("str_diff->lev_distance = %d\n", (int)str_diff->lev_distance);
-        printf("str_diff->ratio = %f\n", str_diff->ratio);
+
+        if (input_key_len > str_to_match_len) {
+        // if the length of the key is longer
+            str_diff->ratio = ((double)(str_to_match_len - str_diff->lev_distance))/ input_key_len;
+             // Update the struct ratio
+            printf("str_diff->lev_distance = %d\n", (int)str_diff->lev_distance);
+            printf("str_diff->ratio = %f\n", str_diff->ratio);
+
+        } else {
+        // if the length of the word we are comparing is longer
+           str_diff->ratio = ((double)(str_to_match_len - str_diff->lev_distance))/ str_to_match_len;
+           // Update the struct ratio
+            printf("str_diff->lev_distance = %d\n", (int)str_diff->lev_distance);
+            printf("str_diff->ratio = %f\n", str_diff->ratio);
+        }
+    }
+}
+
+unsigned long get_lev_distance(struct string_distance* str_diff) {
+
+    if (str_diff) {
+        return str_diff->lev_distance;
+    } else {
+        fprintf(stderr, "Error: Memory already deallocated\nerrno: %d\n", errno);
+        return -1;
+    }
+}
+
+double get_lev_ratio(struct string_distance* str_diff) {
+    if (str_diff) {
+        return str_diff->ratio;
+    } else {
+        fprintf(stderr, "Error: Memory already deallocated\nerrno: %d\n", errno);
+        return (double)-1;
     }
 }
 
