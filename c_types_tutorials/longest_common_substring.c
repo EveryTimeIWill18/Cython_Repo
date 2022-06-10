@@ -43,15 +43,6 @@ LCS * init_lcs(const char *str_one, const char * str_two) {
     for (int i=0; i <= lcs->str_one_len; i++) {
         *(lcs->lcs_matrix + i) = (int *) malloc((lcs->str_two_len +1) * sizeof(int));
     }
-
-    for (int i=0; i <= lcs->str_one_len; i++) {
-        for (int j = 0; j <= lcs->str_two_len; j++) {
-            if (i == 0 || j == 0) {
-                *(*(lcs->lcs_matrix + i) + j) = 0;
-            }
-        }
-    }
-    
     // Initialize result to 0
     lcs->result = 0;
     // Initialize lcs ratio to 0.10000
@@ -84,6 +75,7 @@ void lcs_algorithm(LCS *lcs_struct) {
             }
         }
     }
+    printf("finished computing LCS!\n");
 }
 
 int get_lcs_result(LCS * lcs_struct) {
@@ -96,6 +88,7 @@ int get_lcs_result(LCS * lcs_struct) {
         fprintf(stderr, "Error: Memory already deallocated\nerrno: %d\n", errno);
         return -1;
     }
+
 }
 
 double get_lcs_ratio(LCS *lcs_struct) {
