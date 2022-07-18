@@ -1,15 +1,8 @@
 """
 load_c_code.py
 ~~~~~~~~~~~~~~
-This module is sued for wrapping and loading in our
-C code so it can used inside our Python applications
-
-This is a nice way to Pythonify our C code. Remember, your team will likely not be very good at C and by designing class
-wrappers around our C code, we abstract away the difficulties of havign to work with C.
-
-For an additional upgrade, you could create a parent class for our Python class C wrappers as you will see,
-some of the methods within each Python class are repeated, breaking the cardinal rule of, "Don't Repeat Yourself",
-but that's not really important for this lesson
+This module is used for wrapping and loading in our
+C code so it can used inside our Python applications.
 
 
 """
@@ -21,6 +14,7 @@ from typing import List, Set, Dict, NewType, Tuple
 
 # Python implementations of C-structs
 class LevDistance(ctypes.Structure):
+    """This Class represents """
     _fields_ = [
         ('input_key', ctypes.POINTER(ctypes.c_char)),
         ('string_to_match', ctypes.POINTER(ctypes.c_char)),
@@ -38,7 +32,6 @@ class LCSStruct(ctypes.Structure):
         ('result', ctypes.c_int),
         ('lcs_ratio', ctypes.c_double)
     ]
-
 
 
 class C_CodeWrapper:
@@ -63,6 +56,16 @@ class C_CodeWrapper:
 class LevenshteinDistance:
     """A class that loads in the C implementation
     of the Levenshtein distance algorithm
+
+    Attributes
+    ----------
+    f_path : str
+        The full path (other than the .c file name) to the .c file
+    f_name : str
+        The .c name to be loaded
+    c_library : ctypes.CDLL
+        Used to load the dynamic linked libraries. This is needed if you
+        want to load your C code into Python
     """
 
     def __init__(self, f_path: str, f_name: str):
@@ -72,10 +75,11 @@ class LevenshteinDistance:
         self.c_library = ctypes.CDLL(os.path.join(self.f_path, self.f_name))
 
 
-    def c_setup(self):
+    def c_setup(self) -> None:
         """This method is used to setup the required items
         needed for use of the C library
         """
+        # Creates a pointer to the LevDistance Struct
         self.lev_distance_struct = ctypes.POINTER(LevDistance)
 
         # Initialize and allocate memory for the lev distance struct
@@ -97,16 +101,22 @@ class LevenshteinDistance:
         self.destroy_str_dist_struct = self.c_library.destroy_str_dist_struct
 
     def compute_lev_distance(self, str_1: bytes, str_2: bytes):
-        """A wrapper around the lev distance C function"""
+        """A wrapper around the lev distance C function
 
+        Parameters
+        ----------
+        str_1 : str
+            The first string to be used in the Lev Dist computation
+        str_2 : str
+            The second string to be used in the Lev Dist computation
+
+        """
         # Remove spaces from the bytes names
         b1 = str_1.split(b' ')
         b2 = str_2.split(b' ')
 
         bytes_str_1 = b''.join(b for b in b1)
         bytes_str_2 = b''.join(b for b in b2)
-
-        print(f"{bytes_str_1=}\n{bytes_str_2=}")
 
         # Create an instance of the struct
         self.lev_dist_struct_instance = self.lev_distance_struct()
@@ -134,6 +144,16 @@ class LevenshteinDistance:
 class LongestCommonSubstring:
     """A class that loads in the C implementation
         of the Longest Common Substring
+
+    Attributes
+    ----------
+    f_path : str
+        The full path (other than the .c file name) to the .c file
+    f_name : str
+        The .c name to be loaded
+    c_library : ctypes.CDLL
+        Used to load the dynamic linked libraries. This is needed if you
+        want to load your C code into Python
     """
     def __init__(self, f_path: str, f_name: str):
         self.f_path = f_path
@@ -141,11 +161,11 @@ class LongestCommonSubstring:
         # ctypes attributes
         self.c_library = ctypes.CDLL(os.path.join(self.f_path, self.f_name))
 
-    def c_setup(self):
+    def c_setup(self) -> None:
         """This method is used to setup the required items
         needed for use of the C library
         """
-
+        # Creates a pointer to the LCS Struct
         self.lcs_struct = ctypes.POINTER(LCSStruct)
 
         # Map init_lcs C function
@@ -166,8 +186,16 @@ class LongestCommonSubstring:
         # Free the memory
         self.destroy_lcs = self.c_library.destroy_lcs
 
-    def compute_lcs(self, str_1: bytes, str_2: bytes):
-        """A wrapper aroundLongest Common Substring algorithm"""
+    def compute_lcs(self, str_1: bytes, str_2: bytes) -> None:
+        """A wrapper aroundLongest Common Substring algorithm
+
+        Parameters
+        ----------
+        str_1 : str
+            The first string to be used in the LCS computation
+        str_2 : str
+            The second string to be used in the LCS computation
+        """
 
         # Create an instance of the struct
         self.lcs_struct_instance = self.lcs_struct()
@@ -199,19 +227,26 @@ class LongestCommonSubstring:
 
 
 def main():
-    f_path = os.path.join(Path(__file__).parent, 'c_algorithms')
+    f_path = '/Users/williammurphy/local_git/db_fuzzy_matching/nlp_src/c_algorithms/'
+    p = Path(__file__).parent
+    c_path = os.path.join(Path(__file__).parent, 'c_algorithms')
+    print(f"{c_path=}")
+
     c_lev_file = 'nlp_algorithms.so'
     c_lcs_file = 'lcs.so'
 
     lev_distance = LevenshteinDistance(f_path=f_path, f_name=c_lev_file)
     lev_distance.c_setup()
     # lev_distance.compute_lev_distance(str_1='JAMES', str_2='JAMES BOBY')
-    lev_distance.compute_lev_distance(str_1=b'WILLIAM MURPHY', str_2=b'WILLIAM  R  MURPHY   ')
+    str_1 = 'WILLIAM MURPHY'
+    str_2 = 'WILLIAM  R  MURPHY   '
+    lev_distance.compute_lev_distance(str_1=bytes(str_1, 'UTF-8'), str_2=bytes(str_2, 'UTF-8'))
 
-    lev_dist = lev_distance.get_distance()
-    print(f"{lev_dist=}")
-    lev_ratio = lev_distance.get_ratio()
-    print(f"{lev_ratio=}")
+    # lev_dist = 7, lev_ratio = 0.5
+    # lev_dist = lev_distance.get_distance()
+    # print(f"{lev_dist=}")
+    # lev_ratio = lev_distance.get_ratio()
+    # print(f"{lev_ratio=}")
 
     lev_distance.free()
 

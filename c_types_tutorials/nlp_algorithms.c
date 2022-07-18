@@ -1,25 +1,9 @@
 /*
-*  nlp_algorithms.c
-*  ~~~~~~~~~~~~~~~~
-*  This code serves as the base for creating a set string processing algorithms that will be used 
-*  with the my tutorials on using the 'ctypes' module in Python.
-*
-*  Many of the tutorials online use relatively simple C code; this tutorial will go in great depth.
-*
-*  Developer: William Robert Murphy
-*
-* STEPS TO GETTING THIS C FILE WORKING IN PYTHON
-* -----------------------------------------------
-* In the command line, move to the dir (or write the full path name) to this file (nlp_algorithms.c) and execute the following
-*     
-*     cc -fPIC -shared -o nlp_algorithms.so nlp_algorithms.c
-*
-* This will create a shared .so file that Python will read in using ctypes.
-*
-* Please go to the nlp_algorithms.py for a continuation of this tutorial.
+nlp_algorithms.c
+~~~~~~~~~~~~~~~~
+This library is used to perform
+
 */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -27,12 +11,8 @@
 
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-int square(int i) {
-    return i * i;
-}
 
-
-
+// The Lev Distance Struct
 struct string_distance {
     const char * input_key;
     const char * string_to_match;
@@ -143,6 +123,9 @@ double get_lev_ratio(struct string_distance* str_diff) {
         return (double)-1;
     }
 }
+
+
+
 
 
 void destroy_str_dist_struct(struct string_distance * str_dist) {
