@@ -39,6 +39,55 @@ cdef class CyParallelDataFrame(CSVReader):
         self.Frame.container = NULL
         self.Frame.column_names = NULL
 
+    cpdef dict tail(self, int n_rows, int m_cols):
+        """Returns the last n rows of data from m columns
+        m_cols == -1 returns all columns of data
+        """
+        cdef int row_start = self.Frame.rows - n_rows
+        if row_start < 0:
+            row_start = 0
+        cdef int max_col = self.Frame.cols if (m_cols == -1 or m_cols > self.Frame.cols) else m_cols
+
+        cdef dict subsets = {}
+        cdef:
+            int row
+            int col
+
+        cdef list column_data
+        cdef str col_name
+
+        for col in range(max_col):
+            col_name = self.Frame.column_names[col].decode('utf-8')
+            column_data = []
+
+            for row in range(row_start, self.Frame.rows):
+                column_data.append(self.Frame.container[row][col])
+            subsets[col_name] = column_data
+
+        return subsets
+
+    cpdef dict head(self, int n_rows, int m_cols):
+        """Returns the top n rows of data from m columns.
+        m_cols == -1 returns all columns of data
+        """
+        cdef int  max_rows = n_rows if n_rows < self.Frame.rows else self.Frame.rows
+        cdef int max_cols = self.Frame.cols if (m_cols == -1 or m_cols > self.Frame.cols) else m_cols
+
+        cdef dict subsets = {}
+        cdef:
+            int row
+            int col
+        cdef list column_data
+        cdef str col_name
+
+        for col in range(max_cols):
+            col_name = self.Frame.column_names[col].decode('utf-8')
+            column_data = []
+            for row in range(max_rows):
+                column_data.append(self.Frame.container[row][col])
+            subsets[col_name] = column_data
+        return subsets
+
     cpdef void csv_to_dataframe(self):
         """
         Load in the csv file and parse it by delimiter.
