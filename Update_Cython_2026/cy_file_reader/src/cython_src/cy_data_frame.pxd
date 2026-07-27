@@ -31,6 +31,6 @@ cdef class CyDataFrame(CSVReader):
     cpdef void csv_to_dataframe(self)
     cpdef list get_columns(self)
     cpdef double get_value(self, int row, int col)
-    # TODO: ADD THESE METHODS
-    # cpdef object head(self, int n_rows=5, int n_cols=-1)
-    # cpdef object tail(self, int n_rows=5, int n_cols=-1)
+    cpdef dict head(self, int n_rows, int m_cols)
+    cpdef dict tail(self, int n_rows, int m_cols)
+
