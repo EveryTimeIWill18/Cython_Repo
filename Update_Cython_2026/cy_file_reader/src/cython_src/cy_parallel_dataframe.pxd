@@ -21,3 +21,5 @@ cdef class CyParallelDataFrame(CSVReader):
     cpdef void csv_to_dataframe(self)
     cpdef list get_columns(self)
     cpdef double get_value(self, int row, int col)
+    cpdef dict head(self, int n_rows, int m_cols)
+    cpdef dict tail(self, int n_rows, int m_cols)
