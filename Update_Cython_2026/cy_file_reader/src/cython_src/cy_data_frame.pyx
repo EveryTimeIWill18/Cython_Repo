@@ -75,6 +75,31 @@ cdef class CyDataFrame(CSVReader):
             subsets[col_name] = column_data
         return subsets
 
+    cpdef dict iloc(self, object rows):
+        """Returns a subset of the data based on index"""
+        cdef int data_size = self.Frame.rows
+        cdef int[:] row_indices = np.array(rows, dtype=np.int32)
+        cdef int length = row_indices.shape[0]
+
+        if length > data_size:
+            raise IndexError("Number of rows is larger than the dataset.")
+        cdef dict subsets = {}
+        cdef int col
+        cdef list column_data
+        cdef str col_name
+        cdef int col_length = self.Frame.cols
+        cdef int idx
+        cdef  int r
+
+        for col in range(col_length):
+            col_name = self.Frame.column_names[col].decode('utf-8')
+            column_data = []
+            for idx in range(length):
+                r = row_indices[idx]
+                column_data.append((r, self.Frame.container[r][col]))
+            subsets[col_name] = column_data
+        return subsets
+
     cpdef void csv_to_dataframe(self):
         """
         Load in the csv file and parse it by delimiter.
