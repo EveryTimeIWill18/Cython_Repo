@@ -33,4 +33,5 @@ cdef class CyDataFrame(CSVReader):
     cpdef double get_value(self, int row, int col)
     cpdef dict head(self, int n_rows, int m_cols)
     cpdef dict tail(self, int n_rows, int m_cols)
+    cpdef dict iloc(self, object rows)
 
