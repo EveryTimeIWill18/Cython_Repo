@@ -43,6 +43,33 @@ cdef class CySeries:
             self.Series.container[i] = numpy_dataset[i]
             self.Series.index[i] = i
         self.Series.length = data_length
+    
+    cpdef double pop(self, int index_):
+        """Get the value at a given index"""
+        if self.Series == NULL or self.Series.container == NULL:
+            raise ValueError("Series or Series container is empty.")
+        if index_ < 0 or index_ > self.Series.length:
+            raise IndexError("Index is out of bounds.")
+
+        cdef double value = self.Series.container[index_]
+        cdef int i
+        cdef int updated_length = self.Series.length - 1
+        cdef double* temp_container = NULL
+        temp_container = <double*>malloc(updated_length * sizeof(double))
+        
+        if temp_container == NULL:
+            raise ValueError("Temp container is empty.")
+
+        for i in range(self.Series.length):
+            if i < index_:
+                temp_container[i] = self.Series.container[i]
+            elif i >= index_:
+                temp_container[i] = self.Series.container[i + 1]
+
+        self.Series.container = temp_container
+        self.Series.length = updated_length
+        temp_container = NULL
+        return value
 
     cpdef dict get_data(self):
         """Return the data"""
