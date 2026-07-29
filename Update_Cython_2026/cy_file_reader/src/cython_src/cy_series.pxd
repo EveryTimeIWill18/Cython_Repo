@@ -33,5 +33,6 @@ cdef class CySeries:
     cpdef void load_data(self, object dataset)
     cpdef dict get_data(self)
     cpdef double pop(self, int index_)
+    cpdef CySeries mul(self, CySeries other, char* new_name)
     # cpdef str get_name(self)
     # cpdef double get_value(self, int index)
