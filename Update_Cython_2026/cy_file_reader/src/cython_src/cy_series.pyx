@@ -43,6 +43,31 @@ cdef class CySeries:
             self.Series.container[i] = numpy_dataset[i]
             self.Series.index[i] = i
         self.Series.length = data_length
+        
+    cpdef CySeries mul(self, CySeries other, char* new_name):
+        """Multiplies the values of two CySeries containers"""
+        if self.Series.container == NULL or other.Series.container == NULL:
+            raise  ValueError("Containers are NULL.")
+
+        if self.Series.length != other.Series.length:
+            raise IndexError("Lengths of the containers do not match.")
+
+        cdef int length = self.Series.length
+        cdef char* series_name = <char*>malloc(strlen(new_name) * sizeof(char))
+        strcpy(series_name, new_name)
+
+        cdef CySeries output_series = CySeries(name=series_name)
+        output_series.Series.container = <double*>malloc(length * sizeof(double))
+        output_series.Series.length = length
+
+        cdef double* container1 = self.Series.container
+        cdef double* container2 = other.Series.container
+        cdef double* result_container = output_series.Series.container
+        cdef int i
+
+        for i in range(length):
+            result_container[i] = (container1[i]*container2[i])
+        return output_series
     
     cpdef double pop(self, int index_):
         """Get the value at a given index"""
