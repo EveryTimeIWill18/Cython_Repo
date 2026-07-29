@@ -32,5 +32,6 @@ cdef class CySeries:
     # cpdef void csv_to_series(self)
     cpdef void load_data(self, object dataset)
     cpdef dict get_data(self)
+    cpdef double pop(self, int index_)
     # cpdef str get_name(self)
     # cpdef double get_value(self, int index)
