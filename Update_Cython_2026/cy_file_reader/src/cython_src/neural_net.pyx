@@ -26,7 +26,27 @@ cdef class NeuralNetwork:
 
     def __init__(self):
       ...
+    
+    cdef void load_x_data(self, double[:, :] X):
+        """Load in X-data"""
+        if not self.X_data:
+            raise MemoryError('Failed to allocate memory for the X matrix.')
+        cdef int m_rows = X.shape[0]
+        cdef int n_cols = X.shape[1]
+        cdef int i, j
+        self.X_data.rows = m_rows
+        self.X_data.cols = n_cols
+        self.X_data.matrix = <double**> malloc(m_rows * sizeof(double *))
+        for i in range(self.X_data.rows):
+            self.X_data.matrix[i] = <double*>malloc(n_cols * sizeof(double))
 
+        cdef double* temp
+        i, j = 0, 0
+        for i in range(m_rows):
+            temp = self.X_data.matrix[i]
+            for j in range(n_cols):
+                temp[j] = X[i, j]
+    
     cpdef void set_num_layers(self, int num_layers):
         """Set the number of layers"""
         if num_layers <= 0:
