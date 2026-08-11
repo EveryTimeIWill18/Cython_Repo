@@ -35,3 +35,4 @@ cdef class NeuralNetwork:
     cpdef void set_node_ids(self, list node_ids)
     cpdef void initialize_weights(self)
     cpdef dict get_network_structure(self)
+    cdef void load_x_data(self, double[:, :] X)
