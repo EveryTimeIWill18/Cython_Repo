@@ -93,6 +93,28 @@ cdef class NeuralNetwork:
         if self.neural_net.num_layers == 0 or self.neural_net.layers == NULL:
             raise RuntimeError('Num_layers = 0 or neural_net.layers = NULL.')
 
+        cdef int i, j, k
+        cdef Layer* previous_layer
+        cdef int num_layers = self.neural_net.num_layers
+        cdef Layer* current_layer
+        cdef int prev_layer_num_nodes
+        cdef int current_layer_num_nodes
+        cdef Node* current_node
+
+        for i in range(1, num_layers):
+            current_layer = &self.neural_net.layers[i]
+            current_layer_num_nodes = current_layer.num_nodes_in_layer
+            previous_layer = &self.neural_net.layers[i-1]
+            prev_layer_num_nodes = previous_layer.num_nodes_in_layer
+            for j in range(current_layer_num_nodes):
+                current_node = &current_layer.layer_nodes[j]
+                current_node.weights = <double*>malloc(prev_layer_num_nodes * sizeof(double))
+                if not current_node.weights:
+                    raise MemoryError('Failed to allocate memory for the weights.')
+                for k in range(prev_layer_num_nodes):
+                    current_node.weights[k] = 0.0
+                    print(f'{current_node.weights[k]=}')
+
     cpdef dict get_network_structure(self):
         """Returns the network structure in a dict"""
         if self.neural_net == NULL or self.neural_net.layers == NULL:
