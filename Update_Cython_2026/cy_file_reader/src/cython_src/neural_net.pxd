@@ -31,3 +31,7 @@ cdef class NeuralNetwork:
 
     cpdef void set_num_layers(self, int num_layers)
     cpdef void set_num_nodes_in_layer(self, int[:] num_nodes_in_layer)
+    cpdef void set_layer_ids(self, list layer_ids)
+    cpdef void set_node_ids(self, list node_ids)
+    cpdef void initialize_weights(self)
+    cpdef dict get_network_structure(self)
