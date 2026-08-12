@@ -27,6 +27,76 @@ cdef class NeuralNetwork:
     def __init__(self):
       ...
     
+    cpdef void view_architecture(self):
+        """Shows the architecture of the Network."""
+        if self.neural_net == NULL or self.neural_net.layers == NULL:
+            print('Network has not been created.')
+            return
+        cdef int i, j, k
+        cdef Layer* current_layer
+        cdef Node* current_node
+        cdef str layer_id
+        cdef str node_id
+        cdef str next_node_id
+        print("\n------------------- NEURAL NETWORK ARCHITECTURE -------------------")
+        print("-------------------------------------------------------------------")
+        print(f"LAYER COUNT: {self.neural_net.num_layers}")
+        print("-------------------------------------------------------------------")
+
+        for i in range(self.neural_net.num_layers):
+            current_layer = &self.neural_net.layers[i]
+            layer_id = current_layer.layer_id.decode('utf-8')
+            if current_layer.num_nodes_in_layer > 1:
+                print(f'Layer[{layer_id}]: Has {current_layer.num_nodes_in_layer} Nodes.')
+                print("-------------------------------------------------------------------")
+            elif current_layer.num_nodes_in_layer == 1:
+                print(f'Layer[{layer_id}]: Has {current_layer.num_nodes_in_layer} Node.')
+                print("-------------------------------------------------------------------")
+            if current_layer.layer_nodes != NULL:
+                for j in range(current_layer.num_nodes_in_layer):
+                    # Get the current node
+                    current_node =  &current_layer.layer_nodes[j]
+                    node_id = current_node.id.decode('utf-8')
+                    if current_node.num_successors > 0 and current_node.successor_nodes != NULL:
+                        print(f"\t└── Neuron: {node_id}")
+                        for k in range(current_node.num_successors):
+                            if current_node.successor_nodes[k] != NULL and current_node.successor_nodes[k].id != NULL:
+                                next_node_id = current_node.successor_nodes[k].id.decode('utf-8')
+                                print(f"\t\t├───[W={current_node.weights[k]:.4f}]───>{next_node_id}")
+                    else:
+                        print(f"\t└── Neuron: {node_id} (Output Node) ")
+        print("-------------------------------------------------------------------")
+        print("-------------------------------------------------------------------")
+
+    cpdef void connect_network(self):
+        """Connects the network"""
+        if self.neural_net.num_layers == 0 or self.neural_net.layers == NULL:
+            raise RuntimeError('Num_layers = 0 or neural_net.layers = NULL.')
+
+        cdef int i, j, k
+        cdef Layer * current_layer = &self.neural_net.layers[0]
+        cdef Layer * next_layer
+        cdef Node* current_node
+        cdef Node* next_node
+
+        cdef int current_nodes_in_layer = current_layer.num_nodes_in_layer
+        cdef int next_nodes_in_layer
+
+        for k in range(self.neural_net.num_layers):
+            if k > 0:
+                current_layer = &self.neural_net.layers[k]
+            next_layer = &self.neural_net.layers[k + 1]
+            next_nodes_in_layer = next_layer.num_nodes_in_layer
+
+            for i in range(current_nodes_in_layer):
+                current_node = &current_layer.layer_nodes[i]
+                current_node.successor_nodes = <Node**>malloc(next_nodes_in_layer * sizeof(Node*))
+                if not current_node.successor_nodes:
+                    raise MemoryError(f'Failed to allocate memory for successor nodes for Node: {current_node.id} '
+                                      f'in Layer: {current_layer.layer_id}.')
+                for j in range(next_nodes_in_layer):
+                    current_node.successor_nodes[j] = &next_layer.layer_nodes[j]
+    
     cdef void load_x_data(self, double[:, :] X):
         """Load in X-data"""
         if not self.X_data:
@@ -46,6 +116,21 @@ cdef class NeuralNetwork:
             temp = self.X_data.matrix[i]
             for j in range(n_cols):
                 temp[j] = X[i, j]
+    
+    cpdef void insert_data_to_input(self, int current_row):
+        """Insert data into current row"""
+        if not self.X_data:
+            raise MemoryError('Failed to allocate memory for the X struct.')
+
+        cdef int i
+        cdef Layer* input_layer = &self.neural_net.layers[0]
+        cdef int num_nodes = input_layer.num_nodes_in_layer
+
+        if not self.X_data.matrix:
+            raise MemoryError('Failed to allocate memory for the X matrix.')
+
+        for i in range(num_nodes):
+            input_layer.layer_nodes[i].data = self.X_data.matrix[current_row][i]
     
     cpdef void set_num_layers(self, int num_layers):
         """Set the number of layers"""
