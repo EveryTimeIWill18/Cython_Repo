@@ -21,6 +21,11 @@ cdef struct Network:
     int num_layers
     Layer* layers
 
+cdef struct InputMatrix:
+    double** matrix
+    int rows
+    int cols
+
 
 
 cdef class NeuralNetwork:
@@ -36,3 +41,7 @@ cdef class NeuralNetwork:
     cpdef void initialize_weights(self)
     cpdef dict get_network_structure(self)
     cdef void load_x_data(self, double[:, :] X)
+    cpdef void forward_propagation(self, double[:, :] x_data)
+    cpdef void insert_data_to_input(self, int current_row)
+    cpdef void connect_network(self)
+    cpdef void view_architecture(self)
