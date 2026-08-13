@@ -25,7 +25,7 @@ cdef class Vector:
         ...
 
     cpdef void initialize_vector(self, double[:] data):
-        """Load data into the vector"""
+        """Load data into the vector."""
         if not self.vector_container:
             raise MemoryError('Memory not allocated for vector_container.')
 
@@ -77,9 +77,186 @@ cdef class Vector:
                 else:
                     self.vector_container._c_vector[k] = back[i]
                     i += 1
+                    
+    cpdef int get_length(self):
+        """Get the vector length."""
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if self.vector_container._c_vector == NULL:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+
+        return self.vector_container.length
+   cpdef Vector vector_subtraction(self, Vector other):
+        """Vector subtraction."""
+        if not other:
+            raise MemoryError('Memory not allocated for other.')
+        if not other.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for other._c_vector.')
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+        if self.vector_container.length != other.vector_container.length:
+            raise IndexError("Matrices do not have equal length.")
+
+        cdef int i
+        cdef int length = self.vector_container.length
+        cdef Vector new_vector = Vector()
+        # Allocate memory for the new vector
+        new_vector.vector_container._c_vector = <double *> malloc(length * sizeof(double))
+
+        for i in range(length):
+            new_vector.vector_container._c_vector[i] = (self.vector_container._c_vector[i] - other.vector_container._c_vector[i])
+        i = 0
+        for i in range(length):
+            print(f'{new_vector.vector_container._c_vector[i]=}')
+
+        return new_vector
+
+    cpdef Vector vector_sum(self, Vector other):
+        """Vector sum."""
+        if not other:
+            raise MemoryError('Memory not allocated for other.')
+        if not other.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for other._c_vector.')
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+        if self.vector_container.length != other.vector_container.length:
+            raise IndexError("Matrices do not have equal length.")
+
+        cdef int i
+        cdef int length = self.vector_container.length
+        cdef Vector new_vector = Vector()
+        # Allocate memory for the new vector
+        new_vector.vector_container._c_vector = <double*>malloc(length*sizeof(double))
+        if not new_vector.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for dot vector._c_vector.')
+
+        for i in range(length):
+            new_vector.vector_container._c_vector[i] = (self.vector_container._c_vector[i]+other.vector_container._c_vector[i])
+        i = 0
+        for i in range(length):
+            print(f'{new_vector.vector_container._c_vector[i]=}')
+
+        return new_vector
+
+    cpdef double dot_product(self, Vector other):
+        """Dot product."""
+        if not other:
+            raise MemoryError('Memory not allocated for other.')
+        if not other.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for other._c_vector.')
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+        if self.vector_container.length != other.vector_container.length:
+            raise IndexError("Matrices do not have equal length.")
+
+        cdef double dot = 0.0
+        cdef int length = self.vector_container.length
+        cdef int i
+
+        for i in range(length):
+            dot += self.vector_container._c_vector[i]*other.vector_container._c_vector[i]
+        return dot
+
+    cpdef Vector scalar_multiply(self, double scalar):
+        """Creates a new Vector via scalar multiplication."""
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+
+        cdef Vector new_vector = Vector()
+        cdef int length = self.vector_container.length
+        cdef int i
+        new_vector.vector_container._c_vector = <double*>malloc(length * sizeof(double))
+        for i in range(length):
+            new_vector.vector_container._c_vector[i] = scalar*self.vector_container._c_vector[i]
+        i = 0
+        for i in range(length):
+            print(f'Scalar mult: {i=}| {new_vector.vector_container._c_vector[i]=}')
+
+    cpdef double vector_mean(self):
+        """Vector mean."""
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+
+        cdef double cy_mean = 0.0
+        cdef double vec_sum = 0.0
+        cdef int length = self.vector_container.length
+        cdef int i
+
+        for i in range(length):
+            vec_sum += self.vector_container._c_vector[i]
+
+        cy_mean = vec_sum/length
+        print(f'{cy_mean=}')
+        return cy_mean
+
+    cpdef double sum_of_squares(self):
+        """Computes the sum of squares."""
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+
+        cdef double sum_squares = 0.0
+        cdef int length = self.vector_container.length
+        cdef int i
+
+        for i in range(length):
+            sum_squares +=  (self.vector_container._c_vector[i]*self.vector_container._c_vector[i])
+        print(f'{sum_squares=}')
+        return sum_squares
+
+    cpdef double magnitude(self):
+        """Computes magnitude."""
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+        cdef double mag = 0.0
+        cdef int length = self.vector_container.length
+        cdef int i
+
+        for i in range(length):
+            mag += (self.vector_container._c_vector[i]*self.vector_container._c_vector[i])
+        mag = sqrt(mag)
+        print(f'MAGNITUDE: {mag=}')
+        return mag
+
+    cpdef double distance(self, Vector other):
+        """Computes distance."""
+        if not other:
+            raise MemoryError('Memory not allocated for other.')
+        if not other.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for other._c_vector.')
+        if not self.vector_container:
+            raise MemoryError('Memory not allocated for vector_container.')
+        if not self.vector_container._c_vector:
+            raise MemoryError('Memory not allocated for vector_container._c_vector.')
+        if self.vector_container.length != other.vector_container.length:
+            raise IndexError("Matrices do not have equal length.")
+
+        cdef double dist = 0.0
+        cdef int length = self.vector_container.length
+        cdef int i
+
+        for i in range(length):
+            dist += exp(self.vector_container._c_vector[i] - other.vector_container._c_vector[i])
+
+        dist = sqrt(dist)
+        print(f'{dist=}')
+        return dist
     
     def __dealloc__(self):
-        """Deallocate memory"""
+        """Deallocate memory."""
         if self.vector_container != NULL:
             if self.vector_container._c_vector != NULL:
                 free(self.vector_container._c_vector)
