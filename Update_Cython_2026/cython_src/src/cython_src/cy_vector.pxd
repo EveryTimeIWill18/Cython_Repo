@@ -24,3 +24,13 @@ cdef class Vector:
 
     cpdef void initialize_vector(self, double[:] data)
     cpdef void insert(self, int index, double value)
+
+    cpdef Vector vector_sum(self, Vector other)
+    cpdef Vector vector_subtraction(self, Vector other)
+    cpdef double dot_product(self, Vector other)
+    cpdef Vector scalar_multiply(self, double scalar)
+    cpdef double vector_mean(self)
+    cpdef double sum_of_squares(self)
+    cpdef double magnitude(self)
+    cpdef double distance(self, Vector other)
+    cpdef int get_length(self)
