@@ -17,4 +17,4 @@ cdef class Matrix:
     cdef:
         CyMatrix* matrix_container
 
-    cdef void initialize_matrix(self, double[:, :] init_matrix)
+    cpdef void initialize_matrix(self, double[:, :] init_matrix)
