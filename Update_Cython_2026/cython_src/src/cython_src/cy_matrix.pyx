@@ -42,7 +42,52 @@ cdef class Matrix:
             self.matrix_container._c_matrix[i] = <double*>malloc(m_cols*sizeof(double))
             if self.matrix_container._c_matrix[i] == NULL:
                 raise MemoryError(f'Memory not allocated for matrix_container._c_matrix[{i}].')
+    cpdef Matrix multiply(self, Matrix other):
+        """Matrix multiplication"""
 
+    cpdef Matrix transpose(self):
+        """Transpose the matrix."""
+        if self.matrix_container == NULL:
+            raise MemoryError('Memory not allocated for matrix_container.')
+        cdef int i, j
+
+        cdef Matrix new_matrix = Matrix()
+        new_matrix.matrix_container.num_rows = self.matrix_container.num_cols
+        new_matrix.matrix_container.num_cols = self.matrix_container.num_rows
+
+        cdef int new_rows = new_matrix.matrix_container.num_rows
+        cdef int new_cols = new_matrix.matrix_container.num_cols
+
+        if new_matrix.matrix_container == NULL:
+            raise MemoryError('Memory not allocated for new_matrix.matrix_container.')
+
+        # Allocate _c_matrix memory
+        new_matrix.matrix_container._c_matrix = <double**>malloc(new_rows * sizeof(double*))
+        if new_matrix.matrix_container._c_matrix == NULL:
+            raise MemoryError('Memory not allocated for new_matrix.matrix_container._c_matrix.')
+
+        for i in range(new_rows):
+            new_matrix.matrix_container._c_matrix[i] = <double*>malloc(new_cols * sizeof(double))
+            if new_matrix.matrix_container._c_matrix[i] == NULL:
+                raise MemoryError(f'Memory not allocated for new_matrix.matrix_container._c_matrix[{i}]')
+
+        i = 0
+        for i in range(self.matrix_container.num_cols):
+            for j in range(self.matrix_container.num_rows):
+                new_matrix.matrix_container._c_matrix[i][j] = self.matrix_container._c_matrix[j][i]
+
+        return new_matrix
+
+    cpdef int[:] shape(self):
+        """Returns the shape of the data."""
+        if self.matrix_container == NULL:
+            raise MemoryError('Memory not allocated for matrix_container.')
+
+        cdef cnp.ndarray[cnp.int32_t, ndim=1] _shape = np.empty(2, dtype=np.int32)
+        _shape[0] = self.matrix_container.num_rows
+        _shape[1] = self.matrix_container.num_cols
+        return _shape
+    
     def __dealloc__(self):
         """Deallocate memory."""
         if self.matrix_container != NULL:
