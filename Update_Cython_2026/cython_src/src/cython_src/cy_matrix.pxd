@@ -21,3 +21,5 @@ cdef class Matrix:
     cpdef int[:] shape(self)
     cpdef Matrix multiply(self, Matrix other)
     cpdef Matrix transpose(self)
+    cpdef bool check_dimensions(self, Matrix A, Matrix B)
+    cpdef void print_matrix(self)
