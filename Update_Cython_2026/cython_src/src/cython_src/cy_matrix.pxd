@@ -18,3 +18,6 @@ cdef class Matrix:
         CyMatrix* matrix_container
 
     cpdef void initialize_matrix(self, double[:, :] init_matrix)
+    cpdef int[:] shape(self)
+    cpdef Matrix multiply(self, Matrix other)
+    cpdef Matrix transpose(self)
