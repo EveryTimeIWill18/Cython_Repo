@@ -42,8 +42,61 @@ cdef class Matrix:
             self.matrix_container._c_matrix[i] = <double*>malloc(m_cols*sizeof(double))
             if self.matrix_container._c_matrix[i] == NULL:
                 raise MemoryError(f'Memory not allocated for matrix_container._c_matrix[{i}].')
+        i = 0
+        for i in range(n_rows):
+            for j in range(m_cols):
+                self.matrix_container._c_matrix[i][j] = init_matrix[i][j]
+    
     cpdef Matrix multiply(self, Matrix other):
         """Matrix multiplication"""
+        if self.matrix_container._c_matrix == NULL:
+            raise MemoryError('Memory not allocated for matrix_container._c_matrix.')
+        if not other:
+            raise MemoryError('Memory not allocated for other._c_matrix.')
+        cdef int i, j, k
+        cdef double current_value
+        cdef int current_mat_n_rows = self.matrix_container.num_rows
+        cdef Matrix new_matrix = Matrix()
+
+        cdef bool dims_match = self.check_dimensions(A=self, B=other)
+        if dims_match == True:
+            # Allocate memory for the matrix
+            new_matrix.matrix_container._c_matrix = <double**> malloc(current_mat_n_rows * sizeof(double *))
+            if new_matrix.matrix_container._c_matrix == NULL:
+                raise MemoryError('Memory not allocated for new_matrix.matrix_container._c_matrix.')
+            # Allocate memory for each row of the matrix
+            for i in range(other.matrix_container.num_cols):
+                new_matrix.matrix_container._c_matrix[i] = <double *> malloc(
+                    other.matrix_container.num_cols * sizeof(double))
+                if new_matrix.matrix_container._c_matrix[i] == NULL:
+                    raise MemoryError(f'Memory not allocated for new_matrix.matrix_container._c_matrix[{i}]')
+
+            new_matrix.matrix_container.num_rows = current_mat_n_rows
+            new_matrix.matrix_container.num_cols = other.matrix_container.num_cols
+
+            i = 0
+            for i in range(current_mat_n_rows):
+                for j in range(other.matrix_container.num_cols):
+                    for k in range(self.matrix_container.num_cols):
+                        new_matrix.matrix_container._c_matrix[i][j] += (self.matrix_container._c_matrix[i][k]*other.matrix_container._c_matrix[k][j])
+            return new_matrix
+        elif dims_match == False and self.transpose_needed == True:
+            ...
+        else:
+            raise IndexError('Matrices cannot be multiplied.')
+
+    cpdef void print_matrix(self):
+        """Print out the matrix"""
+        if self.matrix_container._c_matrix == NULL:
+            raise MemoryError('Memory not allocated for _c_matrix.')
+
+        cdef int i, j
+        cdef int n_rows = self.matrix_container.num_rows
+        cdef int m_cols = self.matrix_container.num_cols
+
+        for i in range(n_rows):
+            for j in range(m_cols):
+                print(f'{self.matrix_container._c_matrix[i][j]=}')
 
     cpdef Matrix transpose(self):
         """Transpose the matrix."""
